@@ -1,0 +1,21 @@
+@keyframes slide-from-top {
+    from {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+}
+
+html {
+    font-family: Verdana, Geneva, Tahoma, sans-serif; 
+    font-size: small;
+}
+
+.box-shadow {
+    -webkit-box-shadow: 0px 4px 21px -4px rgba(0,0,0,0.26);
+    -moz-box-shadow: 0px 4px 21px -4px rgba(0,0,0,0.26);
+    box-shadow: 0px 4px 21px -4px rgba(0,0,0,0.26);
+}
+
+.add-note {
+    animation: 0.3s slide-from-top ease-out;
+}
