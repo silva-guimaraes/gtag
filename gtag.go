@@ -46,15 +46,16 @@ func (t *Tag) Render() string {
         ret += (&Literal{raw: "<!DOCTYPE html>"}).Render()
     }
 
-    ret += fmt.Sprintf("<%s%s%s>", voidSlash, t.name, attributes)
+    ret += fmt.Sprintf("<%s%s%s>", t.name, attributes, voidSlash)
+
+    if t.void {
+        return ret
+    }
 
     for _, child := range t.children {
         ret += child.Render()
     }
-
-    if !t.void {
-        ret += fmt.Sprintf("</%s>", t.name)
-    }
+    ret += fmt.Sprintf("</%s>", t.name)
     return ret
 }
 
