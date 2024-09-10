@@ -65,13 +65,13 @@ func (t *Tag) Append(comp ...Node) *Tag {
 }
 
 func (t *Tag) Tag(name string) *Tag {
-    n := newTag(name, false)
+    n := New(name)
     t.Append(n)
     return n
 }
 
 func (t *Tag) VoidTag(name string) *Tag {
-    n := newTag(name, true)
+    n := NewVoid(name)
     t.Append(n)
     return n
 }
@@ -91,15 +91,14 @@ func newTag(name string, void bool) *Tag {
     n.void = void
     return n
 }
-
 func Doc() *Tag {
     root := new(Tag).Tag("html") 
     root.root = true
     return root
 }
-func Div() *Tag {
-    return newTag("div", false)
-}
+func Div() *Tag { return newTag("div", false) }
+func New(name string) *Tag { return newTag(name, false) }
+func NewVoid(name string) *Tag { return newTag(name, true) }
 
 func (t *Tag) Head()    *Tag { return t.Tag("head") }
 func (t *Tag) Body()    *Tag { return t.Tag("body") }
