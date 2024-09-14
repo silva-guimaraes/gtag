@@ -2,61 +2,77 @@ package gtag
 
 import (
 	"fmt"
+	"io"
 	re "regexp"
 	"strings"
 )
 
-type Node interface { Render() string }
+type Node interface { 
+    Render(io.Writer) error
+}
 type Tag struct {
     name string
     void, root bool
     children []Node
     attributes map[string]string
 }
-type Literal struct { raw string }
-type Text struct { text string }
+type Literal struct {
+    raw string 
+}
+type Text struct {
+    text string
+}
 
-func (l *Literal) Render() string { return l.raw }
+func (l *Literal) Render(w io.Writer) error { 
+    _, err := w.Write([]byte(l.raw))
+    return err
+}
 
 var escape = re.MustCompile(`[<>&"']`)
 var lookup = map[string]string { "<": "&lt", ">": "&gt", "&": "%amp", "\"": "&quot", "'": "&#39", }
 func replace(a string) string {
     return escape.ReplaceAllStringFunc(a, func(s string) string { return lookup[s] })
 }
-
-func (t *Text) Render() string {
-    return replace(t.text)
+func (t *Text) Render(w io.Writer) error {
+    _, err := w.Write([]byte(replace(t.text)))
+    return err
 }
 
-func (t *Tag) Render() string {
-    var ret string
-    var renderedAttributes []string
-
-    for key := range t.attributes {
-        renderedAttributes = append(renderedAttributes,
-            fmt.Sprintf("%s=\"%s\"", key, replace(t.attributes[key])))
-    }
-    var attributes string = strings.Join(renderedAttributes, " ")
-    if len(attributes) > 0 {
-        attributes = " " + attributes
-    }
-    var voidSlash string; if t.void { voidSlash = "/" }
+func (t *Tag) Render(w io.Writer) error {
 
     if t.root {
-        ret += (&Literal{raw: "<!DOCTYPE html>"}).Render()
+        _, _ = fmt.Fprintf(w,  "<!DOCTYPE html>\n")
+    }
+    _, _ = fmt.Fprintf(w,  "<%s", t.name)
+
+    if len(t.attributes) > 0 {
+        for key := range t.attributes {
+            _, _ = fmt.Fprintf(w, " %s=\"%s\"", key, replace(t.attributes[key]))
+        }
+    }
+    if t.void { 
+        _, _ = fmt.Fprintf(w, "/")
     }
 
-    ret += fmt.Sprintf("<%s%s%s>", t.name, attributes, voidSlash)
+    _, _ = fmt.Fprintf(w, ">")
 
     if t.void {
-        return ret
+        return nil
     }
-
     for _, child := range t.children {
-        ret += child.Render()
+        err := child.Render(w)
+        if err != nil {
+            return err
+        }
     }
-    ret += fmt.Sprintf("</%s>", t.name)
-    return ret
+    _, _ = fmt.Fprintf(w, "</%s>", t.name)
+    return nil
+}
+
+func (t *Tag) String() string {
+    b := new(strings.Builder)
+    t.Render(b)
+    return b.String()
 }
 
 func (t *Tag) Append(comp ...Node) *Tag {
@@ -83,6 +99,7 @@ func (t *Tag) SetAttr(key, value string) *Tag { t.attributes[key] = value;      
 func (t *Tag) Class(classes ...string) *Tag {   t.SetAttr("class", strings.Join(classes, " ")); return t }
 func (t *Tag) Style(style string) *Tag {        t.SetAttr("style", style);                      return t }
 func (t *Tag) Id(id string) *Tag {              t.SetAttr("id", id);                            return t }
+func (t *Tag) Href(link string) *Tag {          t.SetAttr("href", link);                        return t }
 
 func newTag(name string, void bool) *Tag {
     n := new(Tag)

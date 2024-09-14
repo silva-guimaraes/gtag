@@ -3,7 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	gtag "gtag"
+	"github.com/silva-guimaraes/gtag"
 	"net/http"
 	"slices"
 	"strconv"
@@ -39,7 +39,7 @@ func card(id int, n note) *gtag.Tag {
     return card
 }
 
-func index(notes []note) string {
+func index(notes []note) *gtag.Tag {
     const buttonStyle = 
         "padding: 10px;" +
         "margin: 10px;" +
@@ -75,7 +75,7 @@ func index(notes []note) string {
             }
         }
     }
-    return html.Render()
+    return html
 }
 type note struct {
     title, summary, body string
@@ -95,12 +95,12 @@ func main() {
     }
 
     http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        w.Write([]byte(index(notes)))
+        index(notes).Render(w)
     })
     http.HandleFunc("POST /clicked", func(w http.ResponseWriter, r *http.Request) {
         n := newNote
         notes = append(notes, n)
-        w.Write([]byte(card(len(notes) - 1, n).Render()))
+        card(len(notes) - 1, n).Render(w)
     })
     http.HandleFunc("POST /delete/{index}", func(w http.ResponseWriter, r *http.Request) {
         fmt.Println(r.Pattern)
@@ -114,7 +114,7 @@ func main() {
         }
         fmt.Println("id:", id)
         notes = slices.Delete(notes, id, id+1)
-        w.Write([]byte("foo"))
+        w.Write([]byte(""))
     })
     fmt.Println("listening on http://localhost:2425...")
     err := http.ListenAndServe(":2425", nil)
