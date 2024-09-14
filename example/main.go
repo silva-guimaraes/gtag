@@ -3,11 +3,12 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"github.com/silva-guimaraes/gtag"
 	"net/http"
 	"slices"
 	"strconv"
 	"time"
+
+	"github.com/silva-guimaraes/gtag"
 )
 
 const cardStyle = "padding: 18px;"+ "margin: 10px;" + "border: 1px solid gray;" + "border-radius: 7px;"
