@@ -29,7 +29,7 @@ func (l *Literal) Render(w io.Writer) error {
 }
 
 var escape = re.MustCompile(`[<>&"']`)
-var lookup = map[string]string { "<": "&lt", ">": "&gt", "&": "%amp", "\"": "&quot", "'": "&#39", }
+var lookup = map[string]string { "<": "&lt;", ">": "&gt;", "&": "%amp;", "\"": "&quot;", "'": "&#39;", }
 func replace(a string) string {
     return escape.ReplaceAllStringFunc(a, func(s string) string { return lookup[s] })
 }
@@ -92,14 +92,14 @@ func (t *Tag) VoidTag(name string) *Tag {
     return n
 }
 
-func (t *Tag) Asis(raw string) *Tag {       return t.Append(&Literal{raw: raw}) }
-func (t *Tag) Text(content string) *Tag {   return t.Append(&Text{text: content}) }
+func (t *Tag) Asis(raw string)      *Tag {  return t.Append(&Literal{raw: raw}) }
+func (t *Tag) Text(content string)  *Tag {  return t.Append(&Text{text: content}) }
 
-func (t *Tag) SetAttr(key, value string) *Tag { t.attributes[key] = value;                      return t }
-func (t *Tag) Class(classes ...string) *Tag {   t.SetAttr("class", strings.Join(classes, " ")); return t }
-func (t *Tag) Style(style string) *Tag {        t.SetAttr("style", style);                      return t }
-func (t *Tag) Id(id string) *Tag {              t.SetAttr("id", id);                            return t }
-func (t *Tag) Href(link string) *Tag {          t.SetAttr("href", link);                        return t }
+func (t *Tag) SetAttr(  key, value  string) *Tag {  t.attributes[key] = value;                       return t }
+func (t *Tag) Class(    classes  ...string) *Tag {  t.SetAttr("class",  strings.Join(classes, " ")); return t }
+func (t *Tag) Style(    style       string) *Tag {  t.SetAttr("style",  style);                      return t }
+func (t *Tag) Id(       id          string) *Tag {  t.SetAttr("id",     id);                         return t }
+func (t *Tag) Href(     link        string) *Tag {  t.SetAttr("href",   link);                       return t }
 
 func newTag(name string, void bool) *Tag {
     n := new(Tag)
@@ -113,9 +113,9 @@ func Doc() *Tag {
     root.root = true
     return root
 }
-func Div() *Tag { return newTag("div", false) }
-func New(name string) *Tag { return newTag(name, false) }
-func NewVoid(name string) *Tag { return newTag(name, true) }
+func Div()                  *Tag { return newTag("div", false) }
+func New(name string)       *Tag { return newTag(name, false) }
+func NewVoid(name string)   *Tag { return newTag(name, true) }
 
 func (t *Tag) Head()    *Tag { return t.Tag("head") }
 func (t *Tag) Body()    *Tag { return t.Tag("body") }

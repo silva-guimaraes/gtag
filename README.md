@@ -33,15 +33,42 @@ the main idea was to have a framework that could levarage Go's static typing whi
 
 There might be other similar libraries out there working with simiar concepts. I haven't done my research properly.
 
-## Documentation
-Read the source code for a documentation. The entire thing is 120 lines only. keep an eye out for what references are being returned from the functions. use empty string to declare boolean attributes.
+## API Reference
+Read the source code. The entire thing is 120 lines only. keep an eye out for what references are being returned from the functions. use empty strings to declare boolean attributes.
 
 ## Basic Examples
+create a hello world HTML document and render it to standard output:
+```go
+html := gtag.Doc()
+html.Head().Tag("title").Text("hello world!")
+html.Body().Div().Text("hello world!")
+html.Render(os.Stdout)
+```
+
+inserting raw HTML:
+```go
+html := gtag.Doc(); {
+    head := html.Head(); {
+        head.Tag("title").Text("hello world!")
+        head.Asis(`<script src="https://unpkg.com/htmx.org@2.0.3"></script>`)
+    }
+    html.Render(os.Stdout)
+}
+```
+
+detached tags and void (self enclosing) tags:
+```go
+div := gtag.New("div")
+img := gtag.NewVoid("img")
+div.VoidTag("img")
+
+```
+
 
 statement-friendliness:
 ```go
 html := gtag.Doc(); {
-    html.Head().Tag("title").Text("fizzbuz")
+    html.Head().Tag("title").Text("fizzbuzz")
     body := html.Body(); {
         div := body.Div(); {
             for i := range 31 {
@@ -82,7 +109,7 @@ func main() {
             body.Append(card("Daniel", 22))
         }
     }
-    fmt.Println(html.Render())
+    fmt.Println(html.String())
 }
 
 ```
