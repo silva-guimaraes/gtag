@@ -56,7 +56,7 @@ html := gtag.Doc(); {
 }
 ```
 
-detached tags and void (self enclosing) tags:
+detached tags and void (self closing) tags:
 ```go
 div := gtag.New("div")
 img := gtag.NewVoid("img")
