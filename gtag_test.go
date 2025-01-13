@@ -8,7 +8,7 @@ import (
 
 func stringEqual(tag *gtag.Tag, expected string, t *testing.T) {
 	if r := tag.String(); r != expected {
-		t.Fatalf("\n%s\n!=\n%s", expected, r)
+		t.Fatalf("\n%s\nnot equal to\n%s", expected, r)
 	}
 }
 
@@ -77,4 +77,21 @@ func TestAppend(t *testing.T) {
 	}
 
 	stringEqual(html, expected, t)
+}
+
+func TestAddClass(t *testing.T) {
+	d := gtag.New("div").Class("foo", "bar")
+	expected1 := `<div class="foo bar"></div>`
+
+	stringEqual(d, expected1, t)
+
+	d.AddClass("one")
+	d.AddClass("foo")
+	d.AddClass("two")
+	d.AddClass("bar")
+	d.AddClass("sex")
+
+	expected2 := `<div class="foo bar one two sex"></div>`
+
+	stringEqual(d, expected2, t)
 }

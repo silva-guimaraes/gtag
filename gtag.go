@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	re "regexp"
+	"slices"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ type Tag struct {
 	name       string
 	void, root bool
 	children   []Node
+	classes    []string
 	attributes map[string]string
 }
 type Literal struct {
@@ -46,13 +48,13 @@ func (t *Tag) Render(w io.Writer) error {
 	}
 	_, _ = fmt.Fprintf(w, "<%s", t.name)
 
+	if len(t.classes) > 0 {
+		t.SetAttr("class", strings.Join(t.classes, " "))
+	}
 	if len(t.attributes) > 0 {
 		for key := range t.attributes {
 			_, _ = fmt.Fprintf(w, " %s=\"%s\"", key, replace(t.attributes[key]))
 		}
-	}
-	if t.void {
-		_, _ = fmt.Fprintf(w, "/")
 	}
 
 	_, _ = fmt.Fprintf(w, ">")
@@ -97,10 +99,24 @@ func (t *Tag) Asis(raw string) *Tag     { return t.Append(&Literal{raw: raw}) }
 func (t *Tag) Text(content string) *Tag { return t.Append(&Text{text: content}) }
 
 func (t *Tag) SetAttr(key, value string) *Tag { t.attributes[key] = value; return t }
-func (t *Tag) Class(classes ...string) *Tag   { t.SetAttr("class", strings.Join(classes, " ")); return t }
 func (t *Tag) Style(style string) *Tag        { t.SetAttr("style", style); return t }
 func (t *Tag) Id(id string) *Tag              { t.SetAttr("id", id); return t }
 func (t *Tag) Href(link string) *Tag          { t.SetAttr("href", link); return t }
+
+func (t *Tag) Class(classes ...string) *Tag {
+	t.classes = classes
+	return t
+}
+
+func (t *Tag) AddClass(classes ...string) *Tag {
+	for _, class := range classes {
+		idx := slices.Index(t.classes, class)
+		if idx == -1 {
+			t.classes = append(t.classes, class)
+		}
+	}
+	return t
+}
 
 func newTag(name string, void bool) *Tag {
 	n := new(Tag)
