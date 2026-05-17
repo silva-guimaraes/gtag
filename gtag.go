@@ -31,7 +31,7 @@ func (l *Literal) Render(w io.Writer) error {
 }
 
 var escape = re.MustCompile(`[<>&"']`)
-var lookup = map[string]string{"<": "&lt;", ">": "&gt;", "&": "%amp;", "\"": "&quot;", "'": "&#39;"}
+var lookup = map[string]string{"<": "&lt;", ">": "&gt;", "&": "&amp;", "\"": "&quot;", "'": "&#39;"}
 
 func replace(a string) string {
 	return escape.ReplaceAllStringFunc(a, func(s string) string { return lookup[s] })
